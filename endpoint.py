@@ -1,3 +1,4 @@
+from ast import Try
 import json
 from dataclasses import dataclass
 
@@ -15,6 +16,7 @@ class Endpoint:
     script: CustomScript
     params: dict
     headers: dict
+    auth: None
 
     def __init__(self, name, Endpoint, Script, Method='GET', **kwargs):
         self.name = name
@@ -40,16 +42,23 @@ class Endpoint:
         assert self.method in ('GET', 'POST', 'PATCH', 'PUT', 'DELETE'), f'Unknown http method "{self.method}"'
         return True
 
-    def run(self, auth):
+    def request(self, *args, **kwargs):
+        return self.auth.request(*args, **kwargs)
+
+    def run(self):
         response = requests.request(self.method,
-            auth.url(self.endpoint),
-            params=auth.params(self.params),
-            headers=auth.headers(self.headers),
+            self.auth.url(self.endpoint),
+            params=self.auth.params(self.params),
+            headers=self.auth.headers(self.headers),
             json=self.data
         )
         loc = dict(
             response=response,
-            data=response.json(),
+            raw=response.raw,
             success=False
         )
+        try:
+            loc['data'] = response.json()
+        except requests.JSONDecodeError:
+            loc['data'] = None
         self.script.run(loc)

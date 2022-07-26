@@ -3,7 +3,7 @@ import configparser
 from dotenv import dotenv_values
 from sqlalchemy import false
 
-from authentication import Authentication
+from api import Api
 from container import container
 from custom_script import CustomScript
 from endpoint import Endpoint
@@ -31,7 +31,7 @@ def read_config(filenames):
 
         for section in config.sections():
             if section == 'Authentication':
-                auth = Authentication(**config[section])
+                api = Api(**config[section])
             elif section == 'SQL':
                 container.sql = SQL(**config[section])
             elif section == 'Relationships:OneToMany':
@@ -69,13 +69,16 @@ def read_config(filenames):
 
     container.sql.create_tables()
 
+    for endpoint in container.endpoints.values():
+        endpoint.auth = api
+
     if len(run) > 0:
         for e_name, count in run.items():
             if e_name.startswith('Script:'):
                 container.scripts[e_name[7:]].run()
             else:
                 for _ in range(int(count)):
-                    container.endpoints[e_name].run(auth)
+                    container.endpoints[e_name].run()
     else:
         for endpoint in container.endpoints.values():
-            endpoint.run(auth)
+            endpoint.run()
