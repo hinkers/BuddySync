@@ -16,7 +16,7 @@ class Endpoint:
     script: CustomScript
     params: dict
     headers: dict
-    auth: None
+    api: None
 
     def __init__(self, name, Endpoint, Script, Method='GET', **kwargs):
         self.name = name
@@ -42,16 +42,20 @@ class Endpoint:
         assert self.method in ('GET', 'POST', 'PATCH', 'PUT', 'DELETE'), f'Unknown http method "{self.method}"'
         return True
 
-    def request(self, *args, **kwargs):
-        return self.auth.request(*args, **kwargs)
-
-    def run(self):
+    def send_request(self):
         response = requests.request(self.method,
-            self.auth.url(self.endpoint),
-            params=self.auth.params(self.params),
-            headers=self.auth.headers(self.headers),
+            self.api.url(self.endpoint),
+            params=self.api.params(self.params),
+            headers=self.api.headers(self.headers),
             json=self.data
         )
+        return self.api.handle_http(response)
+
+    def request(self, *args, **kwargs):
+        return self.api.request(*args, **kwargs)
+
+    def run(self):
+        response = self.send_request()
         loc = dict(
             response=response,
             raw=response.raw,

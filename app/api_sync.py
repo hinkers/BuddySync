@@ -1,4 +1,5 @@
 import argparse
+
 from read_config import read_config
 
 parser = argparse.ArgumentParser(description='Syn APIs')
