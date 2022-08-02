@@ -1,9 +1,7 @@
-import json
-
 import requests
-from rauth import OAuth1Service, OAuth2Service
-from sqlalchemy import JSON
+from rauth import OAuth1Service
 
+from oauth.OAuth2Service import OAuth2Service
 from web_server import webserver_for_code
 
 
@@ -43,7 +41,9 @@ class Api:
                 name=kwargs.get('Name'),
                 authorize_url=kwargs.get('AuthorizeUrl'),
                 access_token_url=kwargs.get('AccessTokenUrl'),
-                base_url=kwargs.get('BaseUrl')
+                base_url=kwargs.get('BaseUrl'),
+                temp_webserver=kwargs.get('TempWebServer', False),
+                redirect_uri=kwargs.get('RedirectUrl')
             )
 
         auth_params = dict(
@@ -55,17 +55,7 @@ class Api:
         authorize_url = self.oauth.get_authorize_url(**auth_params)
         print(authorize_url)
 
-        if 'TempWebServer' in kwargs:
-            code = webserver_for_code(kwargs.get('RedirectUrl'))
-        else:
-            code = input('code:')
-
-        d_data = dict(
-            code=code,
-            grant_type='authorization_code',
-            redirect_uri=kwargs.get('RedirectUrl')
-        )
-        self.oauth_session = self.oauth.get_auth_session(data=d_data, decoder=json.loads)
+        self.oauth_session = self.oauth.do_authorize_token()
 
     def url(self, endpoint):
         return f'{self.base_url}{endpoint}'
