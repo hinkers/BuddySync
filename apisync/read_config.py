@@ -39,11 +39,13 @@ def read_config(filenames):
             one_to_one = dict(**one_to_one, **config[section])
         elif section == 'Run':
             run = dict(**run, **config[section])
+        elif section == 'Variables':
+            container.variables.load_variables(**config[section])
         elif section == 'Scripts':
             container.scripts = dict(
                 **container.scripts,
                 **{
-                    name: CustomScript(s_name)
+                    name: CustomScript(s_name, container)
                     for name, s_name in config[section].items()
                 }
             )
@@ -52,7 +54,7 @@ def read_config(filenames):
             if s_type == 'Table':
                 raw_tables[s_name] = config[section]
             elif s_type == 'Endpoint':
-                container.endpoints[s_name] = Endpoint(s_name, **config[section])
+                container.endpoints[s_name] = Endpoint(s_name, container, **config[section])
             else:
                 raise KeyError(f"Unknown section type '{section}'")
         else:

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from container import container
+from container import Container
 from apisync.scripts.formatters import Formatters
 
 
@@ -8,13 +8,14 @@ from apisync.scripts.formatters import Formatters
 class CustomScript:
 
     filename: str
+    container: Container
 
     def run(self, locals_=dict(), throw=True):
         loc = dict(
-            endpoints=container.endpoints,
+            endpoints=self.container.endpoints,
             formatters=Formatters,
-            Session=container.sql.session(),
-            **container.tables,
+            Session=self.container.sql.session(),
+            **self.container.tables,
             **locals_
         )
         with open(self.filename, 'r') as script:

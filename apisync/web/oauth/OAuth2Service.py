@@ -1,6 +1,6 @@
 import json
-from base64 import b64decode, b64encode
 import os
+from base64 import b64decode, b64encode
 
 import requests
 from apisync.web.endpoint import Endpoint
@@ -12,6 +12,8 @@ class OAuth2Service(OAuth2ServiceBase):
 
     temp_webserver: bool
     redirect_uri: str
+    response_type: str
+    scope: str
     access_token: str
     refresh_token: str
     attempt_local: bool
@@ -21,6 +23,12 @@ class OAuth2Service(OAuth2ServiceBase):
         self.refresh_token = None
         self.attempt_local = False
         self.temp_webserver = False
+        if 'response_type' in kwargs:
+            self.response_type = kwargs.get('response_type')
+            del kwargs['response_type']
+        if 'scope' in kwargs:
+            self.redirect_uri = kwargs.get('scope')
+            del kwargs['scope']
         if 'redirect_uri' in kwargs:
             self.redirect_uri = kwargs.get('redirect_uri')
             del kwargs['redirect_uri']
@@ -49,6 +57,16 @@ class OAuth2Service(OAuth2ServiceBase):
         local = self.do_local_token()
         if local is not None:
             return local
+
+        auth_params = dict(
+            response_type=self.response_type,
+            redirect_uri=self.redirect_uri
+        )
+        if self.scope is not None:
+            auth_params['scope'] = self.scope
+        authorize_url = self.oauth.get_authorize_url(**auth_params)
+        print(authorize_url)
+
         if self.temp_webserver:
             code = webserver_for_code(self.redirect_uri)
         else:
@@ -68,9 +86,6 @@ class OAuth2Service(OAuth2ServiceBase):
         return oauth_session
 
     def do_refresh_token(self):
-        local = self.do_local_token()
-        if local is not None:
-            return local
         d_data = dict(
             refresh_token=self.refresh_token,
             grant_type='refresh_token',

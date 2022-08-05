@@ -42,17 +42,10 @@ class Api:
                 access_token_url=kwargs.get('AccessTokenUrl'),
                 base_url=kwargs.get('BaseUrl'),
                 temp_webserver=kwargs.get('TempWebServer', False),
-                redirect_uri=kwargs.get('RedirectUrl')
+                redirect_uri=kwargs.get('RedirectUrl'),
+                response_type=kwargs.get('ResponseType'),
+                scope=kwargs.get('Scope', None)
             )
-
-        auth_params = dict(
-            response_type=kwargs.get('ResponseType'),
-            redirect_uri=kwargs.get('RedirectUrl')
-        )
-        if 'Scope' in kwargs:
-            auth_params['scope'] = kwargs.get('Scope')
-        authorize_url = self.oauth.get_authorize_url(**auth_params)
-        print(authorize_url)
 
         self.oauth_session = self.oauth.do_authorize_token()
 
