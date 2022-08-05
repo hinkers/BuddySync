@@ -1,8 +1,7 @@
 import requests
+from apisync.web.endpoint import Endpoint
+from apisync.web.oauth.OAuth2Service import OAuth2Service
 from rauth import OAuth1Service
-
-from oauth.OAuth2Service import OAuth2Service
-from web_server import webserver_for_code
 
 
 class Api:
@@ -68,9 +67,11 @@ class Api:
     def headers(self, headers):
         return { **headers }
 
-    def handle_http(self, response: requests.Response):
+    def handle_http(self, endpoint: Endpoint, response: requests.Response):
         if response.ok:
             return response
+        if self.oauth is not None:
+            return self.oauth.handle_http(endpoint, response)
         return response
 
     @property

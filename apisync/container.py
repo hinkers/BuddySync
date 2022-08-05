@@ -1,4 +1,4 @@
-from sql import SQL
+from apisync.database.sql import SQL
 
 
 class Container:

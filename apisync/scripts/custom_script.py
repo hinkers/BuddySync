@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from container import container
-from formatters import Formatters
+from apisync.scripts.formatters import Formatters
 
 
 @dataclass

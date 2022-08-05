@@ -1,14 +1,13 @@
 import configparser
 
 from dotenv import dotenv_values
-from sqlalchemy import false
 
-from api import Api
+from apisync.web.api import Api
 from container import container
-from custom_script import CustomScript
-from endpoint import Endpoint
-from sql import SQL
-from sql_table import define_table
+from apisync.scripts.custom_script import CustomScript
+from apisync.web.endpoint import Endpoint
+from apisync.database.sql import SQL
+from apisync.database.sql_table import define_table
 
 
 def read_config(filenames):

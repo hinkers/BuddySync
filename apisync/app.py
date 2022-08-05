@@ -1,6 +1,6 @@
 import argparse
 
-from read_config import read_config
+from apisync.read_config import read_config
 
 parser = argparse.ArgumentParser(description='Syn APIs')
 parser.add_argument('config_files', metavar='config_file', type=str, nargs='+',

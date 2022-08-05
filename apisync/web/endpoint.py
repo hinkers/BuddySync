@@ -1,11 +1,8 @@
-from ast import Try
 import json
 from dataclasses import dataclass
 
 import requests
-from sqlalchemy import false
-
-from custom_script import CustomScript
+from apisync.scripts.custom_script import CustomScript
 
 
 @dataclass
@@ -16,6 +13,7 @@ class Endpoint:
     script: CustomScript
     params: dict
     headers: dict
+    retry_count: int
     api: None
 
     def __init__(self, name, Endpoint, Script, Method='GET', **kwargs):
@@ -26,6 +24,7 @@ class Endpoint:
         self.params = dict()
         self.headers = dict()
         self.data = dict()
+        self.retry_count = 0
 
         for key, value in kwargs.items():
             if key.lower().startswith('param_'):
@@ -43,16 +42,22 @@ class Endpoint:
         return True
 
     def send_request(self):
-        response = requests.request(self.method,
+        self.retry_count = 0
+        response = requests.request(
+            self.method,
             self.api.url(self.endpoint),
             params=self.api.params(self.params),
             headers=self.api.headers(self.headers),
             json=self.data
         )
-        return self.api.handle_http(response)
+        return self.api.handle_http(self, response)
 
     def request(self, *args, **kwargs):
         return self.api.request(*args, **kwargs)
+
+    def retry(self):
+        self.retry_count += 1
+        return self.send_request()
 
     def run(self):
         response = self.send_request()
