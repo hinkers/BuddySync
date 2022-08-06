@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import requests
 from apisync.container import Container
 from apisync.scripts.custom_script import CustomScript
-from apisync.scripts.variable import Variable
+from apisync.scripts.variables import initialize_variable
 
 
 @dataclass
@@ -29,6 +29,7 @@ class Endpoint:
         self.params = dict()
         self.headers = dict()
         self.data = dict()
+        self.putfile = None
         self.retry_count = 0
 
         for key, value in kwargs.items():
@@ -41,6 +42,8 @@ class Endpoint:
             elif key.lower() == 'datafile':
                 with open(value, 'r') as datafile:
                     self.data = json.load(datafile)
+            elif key.lower() == 'putfile':
+                self.putfile = value
 
         self.validate()
         self.initialize_variables()
@@ -50,25 +53,26 @@ class Endpoint:
         return True
 
     def initialize_variables(self):
-        if self.container.variables.contains_variable(self.endpoint):
-            self.endpoint = Variable(self.endpoint, self.container.variables)
-
-        for param in self.params:
-            if self.container.variables.contains_variable(self.params[param]):
-                self.params[param] = Variable(self.params[param], self.container.variables)
-
-        for header in self.headers:
-            if self.container.variables.contains_variable(self.headers[header]):
-                self.headers[header] = Variable(self.headers[header], self.container.variables)
+        self.endpoint = initialize_variable(self.container.variables, self.endpoint)
+        self.params = initialize_variable(self.container.variables, self.params)
+        self.headers = initialize_variable(self.container.variables, self.headers)
+        self.dict = initialize_variable(self.container.variables, self.dict)
 
     def send_request(self):
         self.retry_count = 0
+        kwargs = dict(
+            params=self.api.params(self.params),
+            headers=self.api.headers(self.headers)
+        )
+        if self.data is not None and len(self.data) > 0:
+            kwargs['json'] = self.data
+        if self.method == 'PUT' and self.putfile is not None:
+            with open(self.putfile, 'rb') as putfile:
+                kwargs['data'] = putfile.read()
         response = requests.request(
             self.method,
             self.api.url(self.endpoint),
-            params=self.api.params(self.params),
-            headers=self.api.headers(self.headers),
-            json=self.data
+            **kwargs
         )
         return self.api.handle_http(self, response)
 

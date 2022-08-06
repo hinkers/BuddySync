@@ -1,10 +1,7 @@
-from apisync.scripts.variables import Variables
-
-
 class Variable:
 
     replace_string: str
-    variables: Variables
+    variables: object
 
     def __init__(self, replace_string, variables):
         self.replace_string = replace_string
