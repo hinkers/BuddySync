@@ -9,6 +9,7 @@ class Api:
     base_url: str
     api_key = None
     param_name = None
+    header_name = None
     oauth = None
     oauth_session = None
 
@@ -18,7 +19,8 @@ class Api:
 
         if AuthType == 'ApiKey':
             self.api_key = kwargs.get('ApiKey')
-            self.param_name = kwargs.get('ParamName')
+            self.param_name = kwargs.get('ParamName', None)
+            self.header_name = kwargs.get('HeaderName', None)
         elif AuthType.startswith('OAuth'):
             self._register_oauth(AuthType, kwargs)
 
@@ -43,7 +45,7 @@ class Api:
                 base_url=kwargs.get('BaseUrl'),
                 temp_webserver=kwargs.get('TempWebServer', False),
                 redirect_uri=kwargs.get('RedirectUrl'),
-                response_type=kwargs.get('ResponseType'),
+                response_type=kwargs.get('ResponseType', 'code'),
                 scope=kwargs.get('Scope', None)
             )
 
@@ -58,7 +60,9 @@ class Api:
         return params
 
     def headers(self, headers):
-        return { **headers }
+        if self.header_name is not None:
+            return { self.header_name: self.api_key, **headers }
+        return headers
 
     def handle_http(self, endpoint: Endpoint, response: requests.Response):
         if response.ok:
