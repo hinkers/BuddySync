@@ -56,7 +56,7 @@ class Endpoint:
         self.endpoint = initialize_variable(self.container.variables, self.endpoint)
         self.params = initialize_variable(self.container.variables, self.params)
         self.headers = initialize_variable(self.container.variables, self.headers)
-        self.dict = initialize_variable(self.container.variables, self.dict)
+        self.data = initialize_variable(self.container.variables, self.data)
 
     def send_request(self):
         self.retry_count = 0

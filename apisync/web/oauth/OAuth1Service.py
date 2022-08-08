@@ -16,3 +16,6 @@ class OAuth1Service(OAuth1ServiceBase):
             method='POST',
             data={'oauth_verifier': pin}
         )
+
+    def handle_http(self, endpoint, response):
+        return response

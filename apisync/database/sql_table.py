@@ -1,12 +1,28 @@
-from sqlalchemy import (Boolean, Column, DateTime, ForeignKey, Integer, String,
-                        Table)
+from sqlalchemy import (BigInteger, Boolean, Column, Date, DateTime, Float,
+                        ForeignKey, Integer, Interval, LargeBinary, Numeric,
+                        SmallInteger, String, Table, Text, Time, Unicode,
+                        UnicodeText)
 from sqlalchemy.orm import relationship
 
 valid_types = dict(
-    Integer=Integer,
-    String=String,
+    BigInteger=BigInteger,
+    Boolean=Boolean,
+    Column=Column,
+    Date=Date,
     DateTime=DateTime,
-    Boolean=Boolean
+    Float=Float,
+    ForeignKey=ForeignKey,
+    Integer=Integer,
+    Interval=Interval,
+    LargeBinary=LargeBinary,
+    Numeric=Numeric,
+    SmallInteger=SmallInteger,
+    String=String,
+    Table=Table,
+    Text=Text,
+    Time=Time,
+    Unicode=Unicode,
+    UnicodeText=UnicodeText
 )
 
 
@@ -20,38 +36,33 @@ class SqlTable:
 def define_table(sql, name, key, column_definitions):
     columns = []
     column_names = []
-    dependencies = []
     properties = dict()
     sql_relationships = sql.get_relationships(name)
 
     for c_name, c_type in column_definitions.items():
-        nullable = False
+        args = [
+            c_name,
+            valid_types.get(c_type, None),
+        ]
+        kwargs = dict(
+            primary_key=c_name == key,
+            nullable=False
+        )
         if c_type.endswith('?'):
             c_type = c_type[:-1]
-            nullable = True
+            kwargs['nullable'] = True
+            args[1] = valid_types.get(c_type, None)
+        if c_type.endswith(')') and '(' in c_type:
+            size = int(c_type[c_type.rfind('(') + 1:-1])
+            c_type = c_type[:c_type.rfind('(')]
+            args[1] = valid_types.get(c_type, None)(size)
         assert c_type in valid_types, f'Invalid column type for "{c_name}"'
         column_names.append(c_name)
         if c_name in sql_relationships['one_to_many']:
-            columns.append(Column(
-                c_name,
-                valid_types[c_type],
-                ForeignKey(sql_relationships['one_to_many'][c_name].foreign),
-                nullable=nullable
-            ))
+            args.append(ForeignKey(sql_relationships['one_to_many'][c_name].foreign))
         elif c_name in sql_relationships['one_to_one']:
-            columns.append(Column(
-                c_name,
-                valid_types[c_type],
-                ForeignKey(sql_relationships['one_to_one'][c_name].foreign),
-                nullable=nullable
-            ))
-        else:
-            columns.append(Column(
-                c_name,
-                valid_types[c_type],
-                primary_key=c_name == key,
-                nullable=nullable
-            ))
+            args.append(ForeignKey(sql_relationships['one_to_one'][c_name].foreign))
+        columns.append(Column(*args, **kwargs))
 
     for relation in sql.relationships['one_to_many']:
         if relation.foreign_table.lower() == name.lower():

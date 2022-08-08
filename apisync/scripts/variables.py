@@ -26,10 +26,10 @@ class Variables:
 
 
 def contains_variable(variables, input_string):
-    return any(var_name in input_string for var_name in variables.__variable_names)
+    return any(var_name in input_string for var_name in variables.keys())
 
 def format_string(variables, replace_string):
-    return replace_string.format(**variables.__variable_dict)
+    return replace_string.format(**variables.as_dict())
 
 def initialize_variable(variables, var):
     if isinstance(var, str):
@@ -41,7 +41,7 @@ def initialize_variable(variables, var):
     return var
 
 def initialize_str_variable(variables, var):
-    if contains_variable(var):
+    if contains_variable(variables, var):
         return Variable(var, variables)
     return var
 
