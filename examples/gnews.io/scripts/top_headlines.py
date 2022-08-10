@@ -15,3 +15,5 @@ for item in data['articles']:
     )
     session.add(n)
 session.commit()
+
+variables.test_one = True

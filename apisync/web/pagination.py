@@ -1,3 +1,0 @@
-class Pagination:
-
-    pass

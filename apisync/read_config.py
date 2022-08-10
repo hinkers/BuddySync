@@ -1,6 +1,7 @@
 import configparser
 
 from dotenv import dotenv_values
+from apisync.scripts.variables import load_variables, save_variables
 
 from apisync.web.api import Api
 from container import container
@@ -60,6 +61,8 @@ def read_config(filenames):
         else:
             raise KeyError(f"Unknown section type '{section}'")
 
+    container.variables = load_variables(container.variables)
+
     container.sql.add_relationships('one_to_many', one_to_many)
     container.sql.add_relationships('one_to_one', one_to_one)
 
@@ -83,3 +86,5 @@ def read_config(filenames):
     else:
         for endpoint in container.endpoints.values():
             endpoint.run()
+
+    save_variables(container.variables)

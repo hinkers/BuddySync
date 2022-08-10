@@ -1,3 +1,5 @@
+import pickle
+
 from apisync.scripts.variable import Variable
 
 
@@ -55,3 +57,14 @@ def initialize_dict_variable(variables, var_dict):
     for key in var_dict:
         var_dict[key] = initialize_variable(variables, var_dict[key])
     return var_dict
+
+def save_variables(variables):
+    with open('variables.p', 'wb') as pickle_file:
+        pickle.dump(variables, pickle_file)
+
+def load_variables(variables):
+    try:
+        with open('variables.p', 'rb') as pickle_file:
+            return pickle.load(pickle_file)
+    except FileNotFoundError:
+        return variables
