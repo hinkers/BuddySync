@@ -2,9 +2,8 @@ import json
 from dataclasses import dataclass
 
 import requests
-from apisync.container import Container
-from apisync.scripts.custom_script import CustomScript
-from apisync.scripts.variables import initialize_variable
+from sync_buddy.container import Container
+from sync_buddy.scripts.variables import initialize_variable
 
 
 @dataclass
@@ -13,18 +12,16 @@ class Endpoint:
     name: str
     endpoint: str
     method: str
-    script: CustomScript
     params: dict
     headers: dict
     retry_count: int
     api: None
     container: Container
 
-    def __init__(self, name, container, Endpoint, Script, Method='GET', **kwargs):
+    def __init__(self, name, container, Endpoint, Method='GET', **kwargs):
         self.name = name
         self.container = container
         self.endpoint = Endpoint
-        self.script = CustomScript(Script, container)
         self.method = Method
         self.params = dict()
         self.headers = dict()
@@ -87,12 +84,10 @@ class Endpoint:
         response = self.send_request()
         loc = dict(
             response=response,
-            raw=response.raw,
-            variables=self.container.variables,
-            success=False
+            raw=response.raw
         )
         try:
             loc['data'] = response.json()
         except requests.JSONDecodeError:
             loc['data'] = None
-        self.script.run(loc)
+        return loc

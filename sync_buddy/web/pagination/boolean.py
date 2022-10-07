@@ -1,4 +1,4 @@
-from apisync.web.pagination.pagination import Pagination
+from sync_buddy.web.pagination.pagination import Pagination
 
 
 class BooleanPagination(Pagination):

@@ -1,32 +1,32 @@
 import configparser
+from typing import List
 
 from dotenv import dotenv_values
-from apisync.scripts.variables import load_variables, save_variables
 
-from apisync.web.api import Api
-from container import container
-from apisync.scripts.custom_script import CustomScript
-from apisync.web.endpoint import Endpoint
-from apisync.database.sql import SQL
-from apisync.database.sql_table import define_table
+from sync_buddy.database.sql import SQL
+from sync_buddy.database.sql_table import define_table
+from sync_buddy.scripts.custom_script import CustomScript
+from sync_buddy.web.api import Api
+from sync_buddy.web.endpoint import Endpoint
+from container import Container, container
 
 
-def read_config(filenames):
+def read_config(filenames: List[str]) -> Container:
     env = dotenv_values(".env")
 
     config = configparser.RawConfigParser()
     config.optionxform = str
-    
+
     raw_tables = dict()
     one_to_many = dict()
     one_to_one = dict()
-    run = dict()
 
     for filename in filenames:
         with open(filename, 'r') as config_file:
             config_string = config_file.read()
             for v_name, v_value in env.items():
-                config_string = config_string.replace(f'${{{v_name}}}', v_value)
+                config_string = config_string.replace(
+                    f'${{{v_name}}}', v_value)
             config.read_string(config_string)
 
     for section in config.sections():
@@ -39,7 +39,7 @@ def read_config(filenames):
         elif section == 'Relationships:OneToOne':
             one_to_one = dict(**one_to_one, **config[section])
         elif section == 'Run':
-            run = dict(**run, **config[section])
+            container.run = dict(**container.run, **config[section])
         elif section == 'Variables':
             container.variables.load_variables(**config[section])
         elif section == 'Scripts':
@@ -55,13 +55,14 @@ def read_config(filenames):
             if s_type == 'Table':
                 raw_tables[s_name] = config[section]
             elif s_type == 'Endpoint':
-                container.endpoints[s_name] = Endpoint(s_name, container, **config[section])
+                container.endpoints[s_name] = Endpoint(
+                    s_name, container, **config[section])
             else:
                 raise KeyError(f"Unknown section type '{section}'")
         else:
             raise KeyError(f"Unknown section type '{section}'")
 
-    container.variables = load_variables(container.variables)
+    container.load_variables()
 
     container.sql.add_relationships('one_to_many', one_to_many)
     container.sql.add_relationships('one_to_one', one_to_one)
@@ -69,22 +70,10 @@ def read_config(filenames):
     for name, tbl in raw_tables.items():
         columns = dict(**tbl)
         del columns['__key__']
-        container.tables[name] = define_table(container.sql, name, tbl['__key__'], columns)
-
-    container.sql.create_tables()
+        container.tables[name] = define_table(
+            container.sql, name, tbl['__key__'], columns)
 
     for endpoint in container.endpoints.values():
         endpoint.api = api
 
-    if len(run) > 0:
-        for e_name, count in run.items():
-            if e_name.startswith('Script:'):
-                container.scripts[e_name[7:]].run()
-            else:
-                for _ in range(int(count)):
-                    container.endpoints[e_name].run()
-    else:
-        for endpoint in container.endpoints.values():
-            endpoint.run()
-
-    save_variables(container.variables)
+    return container

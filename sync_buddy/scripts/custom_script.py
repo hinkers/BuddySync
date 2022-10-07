@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
+from sync_buddy.scripts.formatters import Formatters
 from container import Container
-from apisync.scripts.formatters import Formatters
 
 
 @dataclass
@@ -12,9 +12,10 @@ class CustomScript:
 
     def run(self, locals_=dict(), throw=True):
         loc = dict(
-            endpoints=self.container.endpoints,
+            endpoints=self.container.endpoints_as_object(),
             formatters=Formatters,
             Session=self.container.sql.session(),
+            variables=self.container.variables,
             **self.container.tables,
             **locals_
         )

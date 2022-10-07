@@ -1,7 +1,7 @@
 import requests
-from apisync.web.endpoint import Endpoint
-from apisync.web.oauth.OAuth1Service import OAuth1Service
-from apisync.web.oauth.OAuth2Service import OAuth2Service
+from sync_buddy.web.endpoint import Endpoint
+from sync_buddy.web.oauth.OAuth1Service import OAuth1Service
+from sync_buddy.web.oauth.OAuth2Service import OAuth2Service
 
 
 class Api:

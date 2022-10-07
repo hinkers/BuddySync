@@ -3,8 +3,8 @@ import os
 from base64 import b64decode, b64encode
 
 import requests
-from apisync.web.endpoint import Endpoint
-from apisync.web.oauth.web_server import webserver_for_code
+from sync_buddy.web.endpoint import Endpoint
+from sync_buddy.web.oauth.web_server import webserver_for_code
 from rauth import OAuth2Service as OAuth2ServiceBase
 
 

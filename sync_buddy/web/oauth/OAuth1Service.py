@@ -1,6 +1,6 @@
 from rauth import OAuth1Service as OAuth1ServiceBase
 
-from apisync.web.oauth.web_server import webserver_for_code
+from sync_buddy.web.oauth.web_server import webserver_for_code
 
 
 class OAuth1Service(OAuth1ServiceBase):

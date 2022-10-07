@@ -1,6 +1,6 @@
 import pickle
 
-from apisync.scripts.variable import Variable
+from sync_buddy.scripts.variable import Variable
 
 
 class Variables:
@@ -60,11 +60,11 @@ def initialize_dict_variable(variables, var_dict):
 
 def save_variables(variables):
     with open('variables.p', 'wb') as pickle_file:
-        pickle.dump(variables, pickle_file)
+        pickle.dump(variables.as_dict(), pickle_file)
 
 def load_variables(variables):
     try:
         with open('variables.p', 'rb') as pickle_file:
-            return pickle.load(pickle_file)
+            return variables.load_variables(**pickle.load(pickle_file))
     except FileNotFoundError:
         return variables

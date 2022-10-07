@@ -1,3 +1,5 @@
+data = endpoints.top_headlines.run()['data']
+
 session = Session()
 
 for item in data['articles']:
@@ -16,4 +18,3 @@ for item in data['articles']:
     session.add(n)
 session.commit()
 
-variables.test_one = True
