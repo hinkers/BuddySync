@@ -1,20 +1,20 @@
-data = endpoints.top_headlines.run()['data']
-
 session = Session()
 
-for item in data['articles']:
-    n = News(
-        title=item['title'],
-        description=item['description'],
-        content=item['content'],
-        url=item['url'],
-        image=item['image'],
-        published_at=formatters.datetime(item['publishedAt'], '%Y-%m-%dT%H:%M:%SZ'),
-        source=Source(
-            name=item['source']['name'],
-            url=item['source']['url']
+for data in pagination.max_count(endpoints.top_headlines):
+    for item in data['articles']:
+        n = News(
+            title=item['title'],
+            description=item['description'],
+            content=item['content'],
+            url=item['url'],
+            image=item['image'],
+            published_at=formatters.datetime(item['publishedAt'], '%Y-%m-%dT%H:%M:%SZ'),
+            source=Source(
+                name=item['source']['name'],
+                url=item['source']['url']
+            )
         )
-    )
-    session.add(n)
+        session.add(n)
 session.commit()
 
+variables['test_one'] = 5

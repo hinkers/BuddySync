@@ -1,6 +1,5 @@
-from sync_buddy.web.pagination.boolean import BooleanPagination
-from sync_buddy.web.pagination.max_count import MaxCountPagination
-from sync_buddy.web.pagination.page_count import PageCountPagination
+from time import sleep
+from sync_buddy.web.pagination.page_tracker import PageTracker
 
 
 class Pagination:
@@ -10,74 +9,61 @@ class Pagination:
     _headers: dict
     _endpoint: object
     _full_response: bool
+    _page_tracker: object
 
-    def __init__(self, sub_type, *args, **kwargs):
-        self.sub_type = sub_type
+    def __init__(self, *args, **kwargs):
+        self._page_tracker = PageTracker(*args, **kwargs)
         self._params = dict()
         self._headers = dict()
+        self._sleep = int(kwargs.get('Sleep', 0))
         for key, value in kwargs.items():
             if key.startswith('Param_'):
-                self.params[key[6:]] = value
+                self._params[key[6:]] = value
             elif key.startswith('Header_'):
-                self.headers[key[7:]] = value
+                self._headers[key[7:]] = value
 
     def __iter__(self):
         # setup
+        self.reset()
+        self._page_tracker.reset()
         return self
 
     def __next__(self):
-        # return
         if self.has_next_page():
+            if self._page_tracker.not_first() and self._sleep > 0:
+                sleep(self._sleep)
+            page = self.return_page()
             self.setup_next_page()
-            return self.return_page()
+            return page
         raise StopIteration
+
+    def reset(self):
+        pass
 
     def has_next_page(self):
         return False
 
-    def post_request_check(self, response):
+    def after_request_check(self, response):
         pass
 
     def setup_next_page(self):
-        pass
+        self._page_tracker.increment()
 
     def return_page(self):
-        response = self._endpoint.run()
-        self.post_request_check(response)
+        response = self._endpoint.run(self.params(), self.headers())
+        self.after_request_check(response)
         if not self._full_response:
             return response['data']
         return response
 
-    def params(self, params):
-        return { **self._params, **params }
+    def params(self):
+        return { **self._params, **self._page_tracker.params() }
 
-    def headers(self, headers):
-        return { **self._headers, **headers }
+    def headers(self):
+        return { **self._headers, **self._page_tracker.headers() }
 
     def pages(self, endpoint, full_response=False):
         self._endpoint = endpoint
         self._full_response = full_response
         return self
 
-
-def create_pagination(pagination_type, sub_type, *args, **kwargs) -> Pagination:
-    valid_types = (
-        'Custom',
-        'Boolean',
-        'MaxCount',
-        'PageCount'
-    )
-    valid_sub_types = (
-        'Header',
-        'JSON'
-    )
-    assert pagination_type in valid_types, f'Unknown pagination type "{pagination_type}".'
-    assert sub_type in valid_sub_types, f'Unknown pagination sub type "{sub_type}".'
-
-    if pagination_type == 'Boolean':
-        return BooleanPagination(sub_type, *args, **kwargs)
-    if pagination_type == 'MaxCount':
-        return MaxCountPagination(sub_type, *args, **kwargs)
-    if pagination_type == 'PageCount':
-        return PageCountPagination(sub_type, *args, **kwargs)
-    return Pagination(sub_type, *args, **kwargs)

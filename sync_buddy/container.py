@@ -4,12 +4,11 @@ from sync_buddy.database.sql import SQL
 from sync_buddy.scripts.variables import Variables, load_variables, save_variables
 
 
-class Endpoints:
-    pass
+class GenericObject:
 
-
-class Pagination:
-    pass
+    def __init__(self, _dict):
+        for name, value in _dict.items():
+            setattr(self, camel_to_snake(name), value)
 
 
 def camel_to_snake(name):
@@ -33,27 +32,16 @@ class Container:
         self.variables = Variables()
 
     def load_variables(self):
-        self.variables = load_variables(self.variables)
+        load_variables(self.variables)
 
     def save_variables(self):
         save_variables(self.variables)
 
     def endpoints_as_object(self):
-        endpoints = Endpoints()
-
-        for name, endpoint in self.endpoints.items():
-            setattr(endpoints, camel_to_snake(name), endpoint)
-
-        return endpoints
+        return GenericObject(self.endpoints)
 
     def pagination_as_object(self):
-        paginations = Pagination()
-
-        for name, pagination in self.paginations.items():
-            setattr(pagination, camel_to_snake(name), pagination)
-
-        return paginations
-
+        return GenericObject({n: p.pages for n, p in self.paginations.items()})
 
 
 container = Container()

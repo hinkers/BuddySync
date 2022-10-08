@@ -14,6 +14,8 @@ class Endpoint:
     method: str
     params: dict
     headers: dict
+    _temp_params: dict
+    _temp_headers: dict
     retry_count: int
     api: None
     container: Container
@@ -58,8 +60,8 @@ class Endpoint:
     def send_request(self):
         self.retry_count = 0
         kwargs = dict(
-            params=self.api.params(self.params),
-            headers=self.api.headers(self.headers)
+            params=self.api.params({**self.params, **self._temp_params}),
+            headers=self.api.headers({**self.headers, **self._temp_headers})
         )
         if self.data is not None and len(self.data) > 0:
             kwargs['json'] = self.data
@@ -80,7 +82,15 @@ class Endpoint:
         self.retry_count += 1
         return self.send_request()
 
-    def run(self):
+    def run(self, temp_params=None, temp_headers=None):
+        if temp_params is None:
+            temp_params = dict()
+        if temp_headers is None:
+            temp_headers = dict()
+
+        self._temp_params = temp_params
+        self._temp_headers = temp_headers
+
         response = self.send_request()
         loc = dict(
             response=response,

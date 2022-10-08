@@ -12,7 +12,8 @@ logo = '''
 '''
 print(logo)
 
-parser = argparse.ArgumentParser(description='Syn APIs')
+parser = argparse.ArgumentParser(
+    description='Synchronizes between different data sources base on config files and simple python scripts.')
 parser.add_argument('config_files', metavar='config_file', type=str, nargs='+',
                     help='a config file')
 parser.add_argument('--parse', '-p', action='store_true',

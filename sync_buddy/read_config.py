@@ -3,12 +3,13 @@ from typing import List
 
 from dotenv import dotenv_values
 
+from container import Container, container
 from sync_buddy.database.sql import SQL
 from sync_buddy.database.sql_table import define_table
 from sync_buddy.scripts.custom_script import CustomScript
 from sync_buddy.web.api import Api
 from sync_buddy.web.endpoint import Endpoint
-from container import Container, container
+from sync_buddy.web.pagination.factory import create_pagination
 
 
 def read_config(filenames: List[str]) -> Container:
@@ -57,6 +58,9 @@ def read_config(filenames: List[str]) -> Container:
             elif s_type == 'Endpoint':
                 container.endpoints[s_name] = Endpoint(
                     s_name, container, **config[section])
+            elif s_type == 'Pagination':
+                container.paginations[s_name] = create_pagination(
+                    **config[section])
             else:
                 raise KeyError(f"Unknown section type '{section}'")
         else:

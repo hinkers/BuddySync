@@ -10,12 +10,16 @@ class CustomScript:
     filename: str
     container: Container
 
-    def run(self, locals_=dict(), throw=True):
+    def run(self, locals_=None, throw=True):
+        if locals_ is None:
+            locals_ = dict()
+
         loc = dict(
             endpoints=self.container.endpoints_as_object(),
+            pagination=self.container.pagination_as_object(),
             formatters=Formatters,
             Session=self.container.sql.session(),
-            variables=self.container.variables,
+            variables=self.container.variables.as_dict(),
             **self.container.tables,
             **locals_
         )
