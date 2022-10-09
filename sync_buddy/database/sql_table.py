@@ -31,12 +31,14 @@ class SqlTable:
     __key__: str
     __name__: str
     __columns__: list
+    __relationships__: dict
 
 
 def define_table(sql, name, key, column_definitions):
     columns = []
     column_names = []
     properties = dict()
+    relationships = dict()
     sql_relationships = sql.get_relationships(name)
 
     for c_name, c_type in column_definitions.items():
@@ -70,6 +72,7 @@ def define_table(sql, name, key, column_definitions):
                 relation.name,
                 backref=relation.foreign_table.lower()
             )
+            relationships[relation.name.lower()] = relation.name
 
     for relation in sql.relationships['one_to_one']:
         if relation.foreign_table.lower() == name.lower():
@@ -78,12 +81,14 @@ def define_table(sql, name, key, column_definitions):
                 backref=relation.foreign_table.lower(),
                 uselist=False, 
             )
+            relationships[relation.name.lower()] = relation.name
 
     table = Table(name, sql.mapper_registry.metadata, *columns)
     cls = type(name, (SqlTable, ), {
         '__key__': key,
         '__name__': name,
-        '__columns__': column_names
+        '__columns__': column_names,
+        '__relationships__': relationships
     })
 
     sql.mapper_registry.map_imperatively(cls, table, properties=properties)

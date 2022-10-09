@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from sync_buddy.scripts.formatters import Formatters
 from container import Container
+from sync_buddy.utilities.utilites import Utilities
 
 
 @dataclass
@@ -20,6 +21,7 @@ class CustomScript:
             formatters=Formatters,
             Session=self.container.sql.session(),
             variables=self.container.variables.as_dict(),
+            utilities=self.container.utilities,
             **self.container.tables,
             **locals_
         )

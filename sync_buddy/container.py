@@ -2,6 +2,7 @@ import re
 
 from sync_buddy.database.sql import SQL
 from sync_buddy.scripts.variables import Variables, load_variables, save_variables
+from sync_buddy.utilities.utilites import Utilities
 
 
 class GenericObject:
@@ -30,6 +31,7 @@ class Container:
 
     def __init__(self):
         self.variables = Variables()
+        self.utilities = Utilities(self)
 
     def load_variables(self):
         load_variables(self.variables)

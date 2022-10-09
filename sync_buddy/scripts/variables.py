@@ -16,8 +16,9 @@ class Variables:
         for key, value in kwargs.items():
             if key in ['__variable_names', '__variable_dict', 'as_dict', 'keys', 'format_string']:
                 raise KeyError(f'Cannot name variable "{key}" as it is a reserved keyword.')
-            self.__variable_names.append('{' + key + '}')
             self.__variable_dict[key] = value
+            if (s_key := '{' + key + '}') not in self.__variable_names:
+                self.__variable_names.append(s_key)
             setattr(self, key, value)
 
     def as_dict(self):
