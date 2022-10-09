@@ -13,40 +13,40 @@ class Api:
     oauth = None
     oauth_session = None
 
-    def __init__(self, AuthType, BaseUrl, **kwargs):
-        self.auth_type = AuthType
-        self.base_url = BaseUrl
+    def __init__(self, auth_type, base_url, **kwargs):
+        self.auth_type = auth_type
+        self.base_url = base_url
 
-        if AuthType == 'ApiKey':
-            self.api_key = kwargs.get('ApiKey')
-            self.param_name = kwargs.get('ParamName', None)
-            self.header_name = kwargs.get('HeaderName', None)
-        elif AuthType.startswith('OAuth'):
-            self._register_oauth(AuthType, kwargs)
+        if auth_type == 'ApiKey':
+            self.api_key = kwargs.get('api_key')
+            self.param_name = kwargs.get('param_name', None)
+            self.header_name = kwargs.get('header_name', None)
+        elif auth_type.startswith('OAuth'):
+            self._register_oauth(auth_type, kwargs)
 
-    def _register_oauth(self, AuthType, kwargs):
-        if AuthType == 'OAuth1':
+    def _register_oauth(self, auth_type, kwargs):
+        if auth_type == 'OAuth1':
             self.oauth = OAuth1Service(
-                consumer_key=kwargs.get('ConsumerKey'),
-                consumer_secret=kwargs.get('ConsumerSecret'),
-                name=kwargs.get('Name'),
-                access_token_url=kwargs.get('AccessTokenUrl'),
-                authorize_url=kwargs.get('AuthorizeUrl'),
-                request_token_url=kwargs.get('RequestTokenUrl'),
-                base_url=kwargs.get('BaseUrl')
+                consumer_key=kwargs.get('consumer_key'),
+                consumer_secret=kwargs.get('consumer_secret'),
+                name=kwargs.get('name'),
+                access_token_url=kwargs.get('access_token_url'),
+                authorize_url=kwargs.get('authorize_url'),
+                request_token_url=kwargs.get('request_token_url'),
+                base_url=kwargs.get('base_url')
             )
-        elif AuthType == 'OAuth2':
+        elif auth_type == 'OAuth2':
             self.oauth = OAuth2Service(
-                client_id=kwargs.get('ClientId'),
-                client_secret=kwargs.get('ClientSecret'),
-                name=kwargs.get('Name'),
-                authorize_url=kwargs.get('AuthorizeUrl'),
-                access_token_url=kwargs.get('AccessTokenUrl'),
-                base_url=kwargs.get('BaseUrl'),
-                temp_webserver=kwargs.get('TempWebServer', False),
-                redirect_uri=kwargs.get('RedirectUrl'),
-                response_type=kwargs.get('ResponseType', 'code'),
-                scope=kwargs.get('Scope', None)
+                client_id=kwargs.get('client_id'),
+                client_secret=kwargs.get('client_secret'),
+                name=kwargs.get('name'),
+                authorize_url=kwargs.get('authorize_url'),
+                access_token_url=kwargs.get('access_token_url'),
+                base_url=kwargs.get('base_url'),
+                temp_webserver=kwargs.get('temp_webserver', False),
+                redirect_uri=kwargs.get('redirect_uri'),
+                response_type=kwargs.get('response_type', 'code'),
+                scope=kwargs.get('scope', None)
             )
 
         self.oauth_session = self.oauth.do_authorize_token()

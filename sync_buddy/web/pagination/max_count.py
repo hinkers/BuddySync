@@ -17,21 +17,21 @@ class MaxCountPagination(Pagination):
     _header_count: str
 
     def __init__(self, *args, **kwargs):
-        if 'TotalJsonPath' in kwargs:
+        if 'total_json_path' in kwargs:
             self._total_type = 'json'
-            self._jsonpath_total = parse(kwargs['TotalJsonPath'])
-        elif 'TotalHeader' in kwargs:
+            self._jsonpath_total = parse(kwargs['total_json_path'])
+        elif 'total_header' in kwargs:
             self._total_type = 'header'
-            self._header_total = kwargs['TotalHeader']
+            self._header_total = kwargs['total_header']
         else:
             raise ValidationErr()
 
-        if 'CountJsonPath' in kwargs:
+        if 'count_json_path' in kwargs:
             self._count_type = 'json'
-            self._jsonpath_count = parse(kwargs['CountJsonPath'])
-        elif 'CountHeader' in kwargs:
+            self._jsonpath_count = parse(kwargs['count_json_path'])
+        elif 'count_header' in kwargs:
             self._total_type = 'header'
-            self._header_total = kwargs['CountHeader']
+            self._header_total = kwargs['count_header']
 
         super().__init__(*args, **kwargs)
 

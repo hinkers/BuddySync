@@ -44,6 +44,3 @@ class Container:
 
     def pagination_as_object(self):
         return GenericObject({n: p.pages for n, p in self.paginations.items()})
-
-
-container = Container()

@@ -19,7 +19,7 @@ class CustomScript:
             endpoints=self.container.endpoints_as_object(),
             pagination=self.container.pagination_as_object(),
             formatters=Formatters,
-            Session=self.container.sql.session(),
+            Session=self.container.sql['default'].session(),
             variables=self.container.variables.as_dict(),
             utilities=self.container.utilities,
             **self.container.tables,

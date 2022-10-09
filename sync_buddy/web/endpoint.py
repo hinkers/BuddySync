@@ -20,11 +20,12 @@ class Endpoint:
     api: None
     container: Container
 
-    def __init__(self, name, container, Endpoint, Method='GET', **kwargs):
+    def __init__(self, name, api, container, endpoint, method='GET', **kwargs):
+        self.api = api
         self.name = name
         self.container = container
-        self.endpoint = Endpoint
-        self.method = Method
+        self.endpoint = endpoint
+        self.method = method
         self.params = dict()
         self.headers = dict()
         self.data = dict()

@@ -1,9 +1,9 @@
-import configparser
 from typing import List
 
+import hiyapyco
 from dotenv import dotenv_values
 
-from container import Container, container
+from container import Container
 from sync_buddy.database.sql import SQL
 from sync_buddy.database.sql_table import define_table
 from sync_buddy.scripts.custom_script import CustomScript
@@ -15,69 +15,52 @@ from sync_buddy.web.pagination.factory import create_pagination
 def read_config(filenames: List[str]) -> Container:
     env = dotenv_values(".env")
 
-    config = configparser.RawConfigParser()
-    config.optionxform = str
+    container = Container()
 
-    raw_tables = dict()
-    one_to_many = dict()
-    one_to_one = dict()
+    merged_config = hiyapyco.load(
+        *filenames,
+        method=hiyapyco.METHOD_MERGE,
+        interpolate=True,
+        castinterpolated=True,
+        failonmissingfiles=True
+    )
 
-    for filename in filenames:
-        with open(filename, 'r') as config_file:
-            config_string = config_file.read()
-            for v_name, v_value in env.items():
-                config_string = config_string.replace(
-                    f'${{{v_name}}}', v_value)
-            config.read_string(config_string)
+    yaml_string = hiyapyco.dump(merged_config)
+    for v_name, v_value in env.items():
+        yaml_string = yaml_string.replace(f'${{{v_name}}}', v_value)
+    config = hiyapyco.load(yaml_string)
 
-    for section in config.sections():
-        if section == 'Authentication':
-            api = Api(**config[section])
-        elif section == 'SQL':
-            container.sql = SQL(**config[section])
-        elif section == 'Relationships:OneToMany':
-            one_to_many = dict(**one_to_many, **config[section])
-        elif section == 'Relationships:OneToOne':
-            one_to_one = dict(**one_to_one, **config[section])
-        elif section == 'Run':
-            container.run = dict(**container.run, **config[section])
-        elif section == 'Variables':
-            container.variables.load_variables(**config[section])
-        elif section == 'Scripts':
-            container.scripts = dict(
-                **container.scripts,
-                **{
-                    name: CustomScript(s_name, container)
-                    for name, s_name in config[section].items()
-                }
-            )
-        elif ':' in section:
-            s_type, s_name = section.split(':', 1)
-            if s_type == 'Table':
-                raw_tables[s_name] = config[section]
-            elif s_type == 'Endpoint':
-                container.endpoints[s_name] = Endpoint(
-                    s_name, container, **config[section])
-            elif s_type == 'Pagination':
-                container.paginations[s_name] = create_pagination(
-                    **config[section])
-            else:
-                raise KeyError(f"Unknown section type '{section}'")
-        else:
-            raise KeyError(f"Unknown section type '{section}'")
+    apis = {name: Api(**definition) for name, definition in config['api'].items()}
+    container.endpoints = {
+        name: Endpoint(name, apis['default'], container, **definition)
+        for name, definition in config['api']['default']['endpoint'].items()
+    }
+    container.paginations = {
+        name: create_pagination(**definition)
+        for name, definition in config['pagination'].items()
+    }
+    container.sql = {name: SQL(**definition) for name, definition in config['sql'].items()}
+    container.run = config['run']
+    container.variables.load_variables(**config['variable'])
+    container.scripts = {
+        name: CustomScript(s_name, container)
+        for name, s_name in config['script'].items()
+    }
 
     container.load_variables()
 
-    container.sql.add_relationships('one_to_many', one_to_many)
-    container.sql.add_relationships('one_to_one', one_to_one)
+    container.sql['default'].add_relationships(
+        'one_to_many',
+        config['sql']['default']['relationship'].get('one_to_many', dict())
+    )
+    container.sql['default'].add_relationships(
+        'one_to_one',
+        config['sql']['default']['relationship'].get('one_to_one', dict())
+    )
 
-    for name, tbl in raw_tables.items():
-        columns = dict(**tbl)
-        del columns['__key__']
-        container.tables[name] = define_table(
-            container.sql, name, tbl['__key__'], columns)
-
-    for endpoint in container.endpoints.values():
-        endpoint.api = api
+    container.tables = {
+        name: define_table(container.sql['default'], name, table['primary_key'], table['columns'])
+        for name, table in config['sql']['default']['table'].items()
+    }
 
     return container

@@ -24,7 +24,7 @@ args = parser.parse_args()
 container = read_config(args.config_files)
 
 if not args.parse:
-    container.sql.create_tables()
+    container.sql['default'].create_tables()
 
     for e_name, count in container.run.items():
         for _ in range(int(count)):

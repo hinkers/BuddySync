@@ -1,0 +1,25 @@
+sql:
+  default:
+    connection_string: sqlite:///gnews.sqlite
+    create_tables: True
+    relationship:
+      one_to_one:
+        Source: 'news_id -> News.id'
+    table:
+      News:
+        primary_key: id
+        columns:
+          id: Integer
+          title: String
+          description: String
+          content: String
+          url: String
+          image: String
+          published_at: DateTime
+      Source:
+        primary_key: id
+        columns:
+          id: Integer
+          news_id: Integer
+          name: String
+          url: String

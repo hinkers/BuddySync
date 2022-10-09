@@ -24,12 +24,12 @@ class SQL:
     _engine = None
     _session = None
 
-    def __init__(self, ConnectionString, CreateTables=True, Echo=False):
-        self.connection_string = ConnectionString
-        self._create_tables = True if CreateTables == 'True' else False
+    def __init__(self, connection_string, create_tables=True, echo=False, *args, **kwargs):
+        self.connection_string = connection_string
+        self._create_tables = create_tables
         self.relationships = dict(one_to_many=[], one_to_one=[])
         self.mapper_registry = registry()
-        self.echo = True if Echo == 'True' else False
+        self.echo = echo
 
     def engine(self):
         if self._engine is None:
