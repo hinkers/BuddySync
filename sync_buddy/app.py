@@ -1,5 +1,6 @@
 import argparse
-
+from sys import argv
+from logger import get_logger
 from sync_buddy.read_config import read_config
 
 logo = '''
@@ -12,6 +13,9 @@ logo = '''
 '''
 print(logo)
 
+logger = get_logger('app')
+logger.info('App startup')
+
 parser = argparse.ArgumentParser(
     description='Synchronizes between different data sources base on config files and simple python scripts.')
 parser.add_argument('config_files', metavar='config_file', type=str, nargs='+',
@@ -19,15 +23,16 @@ parser.add_argument('config_files', metavar='config_file', type=str, nargs='+',
 parser.add_argument('--parse', '-p', action='store_true',
                     help='only parse the config, don\'t run')
 
-args = parser.parse_args()
+logger.debug(f'Receieved args: {argv[1:]}')
+parsed_args = parser.parse_args()
+logger.debug(f'Args passed successfully')
 
-container = read_config(args.config_files)
+container = read_config(parsed_args.config_files)
 
-if not args.parse:
+if not parsed_args.parse:
     container.sql['default'].create_tables()
 
-    for e_name, count in container.run.items():
-        for _ in range(int(count)):
-            container.scripts[e_name].run()
+    for script in container.scripts:
+        script.run()
 
 container.save_variables()

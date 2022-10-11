@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from dataclasses import dataclass
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm import registry, relationship
+from sqlalchemy.orm import registry
 
 
 @dataclass
@@ -43,13 +43,14 @@ class SQL:
         return self._session
 
     def add_relationships(self, type_, relationships):
-        for name, relation in relationships.items():
-            key, foreign = relation.split('->')
-            foreign_table, foreign_key = foreign.split('.')
+        for definition in relationships:
+            left, right = definition.split('->')
+            table, key = left.split('.')
+            foreign_table, foreign_key = right.split('.')
             self.relationships[type_].append(SqlRelationship(
-                name=name,
+                name=table,
                 key=key.strip(),
-                foreign=foreign.strip(),
+                foreign=right.strip(),
                 foreign_table=foreign_table.strip(),
                 foreign_key=foreign_key.strip()
             ))

@@ -1,12 +1,11 @@
 sql:
-  default:
-    connection_string: sqlite:///gnews.sqlite
+  - connection_string: sqlite:///gnews.sqlite
     create_tables: True
     relationship:
       one_to_one:
-        Source: 'news_id -> News.id'
+        - Source.news_id -> News.id
     table:
-      News:
+      - name: News
         primary_key: id
         columns:
           id: Integer
@@ -16,7 +15,7 @@ sql:
           url: String
           image: String
           published_at: DateTime
-      Source:
+      - name: Source
         primary_key: id
         columns:
           id: Integer

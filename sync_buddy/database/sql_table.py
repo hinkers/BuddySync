@@ -3,6 +3,7 @@ from sqlalchemy import (BigInteger, Boolean, Column, Date, DateTime, Float,
                         SmallInteger, String, Table, Text, Time, Unicode,
                         UnicodeText)
 from sqlalchemy.orm import relationship
+from sync_buddy.logger import get_logger
 
 valid_types = dict(
     BigInteger=BigInteger,
@@ -35,6 +36,8 @@ class SqlTable:
 
 
 def define_table(sql, name, key, column_definitions):
+    logger = get_logger('database')
+
     columns = []
     column_names = []
     properties = dict()
@@ -92,4 +95,5 @@ def define_table(sql, name, key, column_definitions):
     })
 
     sql.mapper_registry.map_imperatively(cls, table, properties=properties)
+    logger.debug(f'Created table class {name}')
     return cls

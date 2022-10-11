@@ -1,9 +1,12 @@
 from typing import Any
 
 from sync_buddy.database.sql_table import SqlTable
+from sync_buddy.logger import get_logger
 
 
 def map_to(self: object, filter_obj: Any, data: dict, mapping: dict = None, funcs: dict = None) -> dict:
+    # logger = get_logger('utilities')
+
     retval = dict()
     mapping = mapping or dict()
     funcs = funcs or dict()

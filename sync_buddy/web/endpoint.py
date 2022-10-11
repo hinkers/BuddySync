@@ -20,7 +20,7 @@ class Endpoint:
     api: None
     container: Container
 
-    def __init__(self, name, api, container, endpoint, method='GET', **kwargs):
+    def __init__(self, api, container, endpoint, method='GET', name='default', **kwargs):
         self.api = api
         self.name = name
         self.container = container

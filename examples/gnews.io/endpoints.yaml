@@ -1,20 +1,19 @@
 api:
-  default:
-    auth_type: ApiKey
+  - auth_type: ApiKey
     api_key: ${API_KEY}
     param_name: token
     base_url: https://gnews.io/api/v4
     endpoint:
-      TopHeadlines:
+      - name: top_headlines
         endpoint: /top-headlines
         method: GET
-      Search:
+      - name: search
         endpoint: /search
         method: GET
         param_q: example
         param_max: 5
 pagination:
-  MaxCount:
+  - name: max_count
     type: MaxCount
     variable_name: page
     variable_location: PARAM
@@ -25,9 +24,6 @@ pagination:
 variable:
   test_one: 8
   test_three: 6
-script:
-  TopHeadlines: scripts/top_headlines.py
-  Search: scripts/search.py
 run:
-  TopHeadlines: 1
-  # Search: 1
+  - scripts/top_headlines.py
+  # - scripts/search.py
