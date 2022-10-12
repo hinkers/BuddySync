@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import registry
 
+from sync_buddy.database.sql_table import define_table
+
 
 @dataclass
 class SqlRelationship:
@@ -18,6 +20,7 @@ class SQL:
 
     connection_string: str
     _create_tables: bool
+    tables: dict
     relationships = dict()
     mapper_registry = None
     echo: bool
@@ -30,6 +33,7 @@ class SQL:
         self.relationships = dict(one_to_many=[], one_to_one=[])
         self.mapper_registry = registry()
         self.echo = echo
+        self.tables = dict()
 
     def engine(self):
         if self._engine is None:
@@ -41,6 +45,9 @@ class SQL:
         if self._session is None:
             self._session = sessionmaker(bind=self.engine())
         return self._session
+
+    def add_table(self, name, primary_key, columns):
+        self.tables[name] = define_table(self, name, primary_key, columns)
 
     def add_relationships(self, type_, relationships):
         for definition in relationships:

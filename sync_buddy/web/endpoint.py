@@ -2,7 +2,6 @@ import json
 from dataclasses import dataclass
 
 import requests
-from sync_buddy.container import Container
 from sync_buddy.scripts.variables import initialize_variable
 
 
@@ -18,9 +17,9 @@ class Endpoint:
     _temp_headers: dict
     retry_count: int
     api: None
-    container: Container
+    container: object
 
-    def __init__(self, api, container, endpoint, method='GET', name='default', **kwargs):
+    def __init__(self, container, api, endpoint, method='GET', name='default', **kwargs):
         self.api = api
         self.name = name
         self.container = container

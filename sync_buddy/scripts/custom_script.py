@@ -1,15 +1,14 @@
 from dataclasses import dataclass
 
 from sync_buddy.scripts.formatters import Formatters
-from container import Container
 from sync_buddy.utilities.utilites import Utilities
 
 
 @dataclass
 class CustomScript:
 
+    container: object
     filename: str
-    container: Container
 
     def run(self, locals_=None, throw=True):
         if locals_ is None:

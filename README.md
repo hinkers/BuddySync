@@ -46,7 +46,6 @@ Creates a named enpoint (where `<name>` is the name of the endpoint). This can b
 | --- | --- | --- | --- |
 | Endpoint | Required | String | The URI for the endpoint, this will be prepended to the BaseUrl defined in the api authentication. |
 | Method | Required | Enum( "GET", "POST", "PATCH", "PUT", "DELETE" ) | The http method to use for this endpoint. |
-| Script | Optional | String | The relative path to the python script to run after the endpoint is called. |
 | Param_`<param_name>` | Optional | String | Will send the value of this key as URI paramter with the name `<param_name>` |
 | Data | Optional | String | A JSON string to send as the body of the request. |
 | DataFile | Optional | String | The relative filepath to a JSON file that will be sent as the body of the request. |
