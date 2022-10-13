@@ -1,5 +1,5 @@
-api:
-  - auth_type: ApiKey
+apis:
+  - auth_type: apikey
     api_key: ${API_KEY}
     apikey_name: token
     apikey_location: param
@@ -11,26 +11,25 @@ api:
       - name: search
         endpoint: /search
         method: GET
-      - name: search
-        endpoint: /search
-        method: GET
         params:
           - name: q
             value: example
           - name: max
             value: 5
-pagination:
+paginations:
   - name: max_count
-    type: MaxCount
+    type: max_count
     variable_name: page
     variable_location: PARAM
     total_json_path: totalArticles
     count_json_path: articles.`len`
-    param_max: 100
+    params:
+      - name: max
+        value: 100
     sleep: 1
-variable:
+variables:
   test_one: 8
   test_three: 6
-run:
+scripts:
   - scripts/top_headlines.py
   # - scripts/search.py

@@ -1,10 +1,10 @@
-sql:
+sqls:
   - connection_string: sqlite:///gnews.sqlite
     create_tables: True
-    relationship:
+    relationships:
       one_to_one:
         - Source.news_id -> News.id
-    table:
+    tables:
       - name: News
         primary_key: id
         columns:

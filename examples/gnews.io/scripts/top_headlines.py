@@ -3,7 +3,7 @@ session = Session()
 for data in pagination.max_count(endpoints.top_headlines):
     for article in data['articles']:
         n = utilities.map_to(
-            News,
+            default.News,
             article,
             dict(published_at='publishedAt'),
             dict(published_at=[formatters.datetime, ['%Y-%m-%dT%H:%M:%SZ']])

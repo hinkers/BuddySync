@@ -5,8 +5,10 @@ import hiyapyco
 from dotenv import dotenv_values
 
 from container import Container
+from sync_buddy.database.schema import validate_sqls
 from sync_buddy.logger import get_logger
-from sync_buddy.web.schema import validate_web
+from sync_buddy.scripts.scheme import validate_scripts, validate_variables
+from sync_buddy.web.schema import validate_apis, validate_paginations
 
 
 def read_config(filenames: List[str]) -> Container:
@@ -33,10 +35,15 @@ def read_config(filenames: List[str]) -> Container:
     logger.debug(f'Yaml files variable interpolation complete, new size {getsizeof(merged_config)} bytes')
 
     # Validate schema
-    web_data = validate_web(config['api'])
+    apis = validate_apis(config.get('apis', []))
+    paginations = validate_paginations(config.get('paginations', []))
+    variables = validate_variables(config.get('variables', {}))
+    scripts = validate_scripts(config.get('scripts', []))
+    sqls = validate_sqls(config.get('sqls', []))
+    logger.info('All config is valid')
 
-    # container = Container(web_data)
-    container = Container(config)
+    # Create container
+    container = Container(apis, paginations, variables, scripts, sqls)
+    logger.debug('Container created')
 
-    logger.info('Finished reading config, valid')
     return container

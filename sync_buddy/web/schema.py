@@ -1,6 +1,48 @@
+from enum import Enum
 import re
 
 from schema import And, Optional, Or, Regex, Schema, Use
+
+
+class AuthType(Enum):
+    CUSTOM = 'custom'
+    APIKEY = 'apikey'
+    OAUTH1 = 'oauth1'
+    OAUTH2 = 'oauth2'
+
+
+class Method(Enum):
+    GET = 'get'
+    POST = 'post'
+    PATCH = 'patch'
+    PUT = 'put'
+    DELETE = 'delete'
+
+
+class Location(Enum):
+    PARAM = 'param'
+    HEADER = 'header'
+
+
+class Pagination(Enum):
+    CUSTOM = 'custom'
+    BOOLEAN = 'boolean'
+    MAX_COUNT = 'max_count'
+    PAGE_COUNT = 'page_count'
+
+
+optional_params = {
+    Optional('params'): [{
+        'name': And(str, len),
+        'value': Use(str),
+    }]
+}
+optional_headers = {
+    Optional('headers'): [{
+        'name': And(str, len),
+        'value': Use(str),
+    }]
+}
 
 
 def validate_api(data):
@@ -11,18 +53,17 @@ def validate_api(data):
 
     required_fields = {
         Optional('name'): And(str, len),
-        'auth_type':  And(str, Use(str.lower), Or('none', 'apikey', 'oauth1', 'oauth2')),
+        'auth_type': And(str, Use(str.lower), Or(*[e.value for e in AuthType])),
         'base_url': VALID_URL,
         'endpoints': [{
-        'name': And(str, len),
-        'method': And(str, Use(str.lower), Or('get', 'post', 'patch', 'put', 'delete')),
-        'endpoint': And(str, len),
+            'name': And(str, len),
+            'method': And(str, Use(str.lower), Or(*[e.value for e in Method])),
+            'endpoint': And(str, len),
             Optional('data'): And(str, len),
             Optional('data_file'): And(str, len),
-            Optional('params'): [{
-                'name': And(str, len),
-                'value': Use(str),
-            }]
+            Optional('put_file'): And(str, len),
+            **optional_params,
+            **optional_headers
         }],
     }
 
@@ -32,16 +73,16 @@ def validate_api(data):
     }).validate(data)
 
     # Validate API key authentication
-    if data['auth_type'] == 'apikey':
+    if data['auth_type'] == AuthType.APIKEY.value:
         return Schema({
             'api_key': And(str, len),
             'apikey_name': And(str, len),
-            'apikey_location': And(str, Use(str.lower), Or('param', 'header')),
+            'apikey_location': And(str, Use(str.lower), Or(*[e.value for e in Location])),
             **required_fields
         }).validate(data)
 
     # Validate OAuth1 authentication
-    elif data['auth_type'] == 'oauth1':
+    elif data['auth_type'] == AuthType.OAUTH1.value:
         return Schema({
             'consumer_key': And(str, len),
             'consumer_secret': And(str, len),
@@ -53,7 +94,7 @@ def validate_api(data):
         }).validate(data)
 
     # Validate OAuth2 authentication
-    elif data['auth_type'] == 'oauth2':
+    elif data['auth_type'] == AuthType.OAUTH2.value:
         return Schema({
             'client_id': And(str, len),
             'client_secret': And(str, len),
@@ -67,5 +108,23 @@ def validate_api(data):
         }).validate(data)
 
 
-def validate_web(data):
+def validate_apis(data):
     return Schema([Use(validate_api)]).validate(data)
+
+
+def validate_pagination(data):
+    # TODO: Finish for all pagination types and variables
+    return Schema({
+        Optional('name'): And(str, len),
+        'type': And(str, Use(str.lower), Or(*[e.value for e in Pagination])),
+        'variable_name': And(str, len),
+        'variable_location': And(str, Use(str.lower), Or(*[e.value for e in Location])),
+        Optional('sleep'): Use(int),
+        **optional_params,
+        **optional_headers,
+        object: object
+    }).validate(data)
+
+
+def validate_paginations(data):
+    return Schema([Use(validate_pagination)]).validate(data)

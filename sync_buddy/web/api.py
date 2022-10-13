@@ -2,6 +2,7 @@ import requests
 from sync_buddy.web.endpoint import Endpoint
 from sync_buddy.web.oauth.OAuth1Service import OAuth1Service
 from sync_buddy.web.oauth.OAuth2Service import OAuth2Service
+from sync_buddy.web.schema import AuthType, Location
 
 
 class Api:
@@ -17,15 +18,17 @@ class Api:
         self.auth_type = auth_type
         self.base_url = base_url
 
-        if auth_type == 'ApiKey':
+        if auth_type == AuthType.APIKEY.value:
             self.api_key = kwargs.get('api_key')
-            self.param_name = kwargs.get('param_name', None)
-            self.header_name = kwargs.get('header_name', None)
-        elif auth_type.startswith('OAuth'):
+            if kwargs['apikey_location'] == Location.PARAM.value:
+                self.param_name = kwargs['apikey_name']
+            elif kwargs['apikey_location'] == Location.HEADER.value:
+                self.header_name = kwargs['apikey_name']
+        elif auth_type in (AuthType.OAUTH1.value, AuthType.OAUTH2.value):
             self._register_oauth(auth_type, kwargs)
 
     def _register_oauth(self, auth_type, kwargs):
-        if auth_type == 'OAuth1':
+        if auth_type == AuthType.OAUTH1.value:
             self.oauth = OAuth1Service(
                 consumer_key=kwargs.get('consumer_key'),
                 consumer_secret=kwargs.get('consumer_secret'),
@@ -35,7 +38,7 @@ class Api:
                 request_token_url=kwargs.get('request_token_url'),
                 base_url=kwargs.get('base_url')
             )
-        elif auth_type == 'OAuth2':
+        elif auth_type == AuthType.OAUTH2.value:
             self.oauth = OAuth2Service(
                 client_id=kwargs.get('client_id'),
                 client_secret=kwargs.get('client_secret'),

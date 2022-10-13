@@ -3,6 +3,8 @@ from dataclasses import dataclass
 
 import requests
 from sync_buddy.scripts.variables import initialize_variable
+from sync_buddy.utilities.key_value_pairs import KVP
+from sync_buddy.web.schema import Method
 
 
 @dataclass
@@ -19,37 +21,32 @@ class Endpoint:
     api: None
     container: object
 
-    def __init__(self, container, api, endpoint, method='GET', name='default', **kwargs):
+    def __init__(self, container, api, endpoint, method=None, name='default', **kwargs):
         self.api = api
         self.name = name
         self.container = container
         self.endpoint = endpoint
-        self.method = method
+        self.method = method or Method.GET
         self.params = dict()
         self.headers = dict()
         self.data = dict()
         self.putfile = None
         self.retry_count = 0
 
-        for key, value in kwargs.items():
-            if key.lower().startswith('param_'):
-                self.params[key[6:]] = value
-            elif key.lower().startswith('header_'):
-                self.headers[key[6:]] = value
-            elif key.lower() == 'data':
-                self.data = json.loads(value)
-            elif key.lower() == 'datafile':
-                with open(value, 'r') as datafile:
-                    self.data = json.load(datafile)
-            elif key.lower() == 'putfile':
-                self.putfile = value
+        for var in kwargs.get('params', []):
+            self.params[var['name']] = var['value']
+        for var in kwargs.get('headers', []):
+            self.params[var['name']] = var['value']
 
-        self.validate()
+        if 'data' in kwargs:
+            self.data = json.loads(kwargs['data'])
+        if 'data_file' in kwargs:
+            with open(kwargs['data_file'], 'r') as datafile:
+                self.data = json.load(datafile)
+        if 'put_file' in kwargs:
+            self.putfile = kwargs['put_file']
+
         self.initialize_variables()
-
-    def validate(self):
-        assert self.method in ('GET', 'POST', 'PATCH', 'PUT', 'DELETE'), f'Unknown http method "{self.method}"'
-        return True
 
     def initialize_variables(self):
         self.endpoint = initialize_variable(self.container.variables, self.endpoint)
@@ -65,7 +62,7 @@ class Endpoint:
         )
         if self.data is not None and len(self.data) > 0:
             kwargs['json'] = self.data
-        if self.method == 'PUT' and self.putfile is not None:
+        if self.method == Method.PUT and self.putfile is not None:
             with open(self.putfile, 'rb') as putfile:
                 kwargs['data'] = putfile.read()
         response = requests.request(

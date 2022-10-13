@@ -12,9 +12,9 @@ from sync_buddy.web.pagination.factory import create_pagination
 
 class GenericObject:
 
-    def __init__(self, _dict):
+    def __init__(self, _dict, to_snake=True):
         for name, value in _dict.items():
-            setattr(self, camel_to_snake(name), value)
+            setattr(self, camel_to_snake(name) if to_snake else name, value)
 
 
 def camel_to_snake(name):
@@ -36,7 +36,7 @@ class Container:
     run: dict()
     paginations: dict()
 
-    def __init__(self, config):
+    def __init__(self, apis, paginations, variables, scripts, sqls):
         logger = get_logger('app')
 
         self.variables = Variables()
@@ -46,7 +46,7 @@ class Container:
         self.utilities = Utilities(self)
 
         # Load APIs and Endpoints
-        for api_definition in config['api']:
+        for api_definition in apis:
             api = Api(**api_definition)
 
             for endpoint_definition in api_definition['endpoints']:
@@ -56,22 +56,22 @@ class Container:
 
                 self.endpoints[endpoint_name] = Endpoint(self, api, **endpoint_definition)
             logger.debug(f'Loaded {len(self.endpoints)} Endpoint definitions')
-        logger.debug(f'Loaded {len(config["api"])} API definitions')
+        logger.debug(f'Loaded {len(apis)} API definitions')
 
         # Load Paginations
-        for pagination_definition in config['pagination']:
+        for pagination_definition in paginations:
             self.paginations[name(pagination_definition)] = create_pagination(**pagination_definition)
         logger.debug(f'Loaded {len(self.paginations)} Pagination definitions')
 
         # Load SQL
-        for sql_definition in config['sql']:
+        for sql_definition in sqls:
             sql = SQL(**sql_definition)
 
-            for table_definition in sql_definition['table']:
+            for table_definition in sql_definition['tables']:
                 sql.add_table(**table_definition)
             logger.debug(f'Loaded {len(sql.tables)} table definitions')
 
-            for type_, relations in sql_definition['relationship'].items():
+            for type_, relations in sql_definition['relationships'].items():
                 sql.add_relationships(type_, relations)
             logger.debug(f'Loaded {len(sql.relationships)} relationships')  
           
@@ -79,11 +79,11 @@ class Container:
         logger.debug(f'Loaded {len(self.sqls)} SQL definitions')
         
         # Load Scripts
-        self.scripts = [CustomScript(self, filepath) for filepath in config['run']]
+        self.scripts = [CustomScript(self, filepath) for filepath in scripts]
         logger.debug(f'Loaded {len(self.scripts)} total scripts')
 
         # Load vriables
-        self.variables.load_variables(**config['variable'])
+        self.variables.load_variables(**variables)
         self.load_variables()
         logger.debug(f'Config variables updated')
 
@@ -98,3 +98,10 @@ class Container:
 
     def pagination_as_object(self):
         return GenericObject({n: p.pages for n, p in self.paginations.items()})
+
+    def create_all_tables(self):
+        for sql in self.sqls.values():
+            sql.create_tables()
+
+    def loc_tables(self):
+        return {sql_name: GenericObject(sql.tables, False) for sql_name, sql in self.sqls.items()}

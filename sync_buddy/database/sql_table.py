@@ -3,28 +3,29 @@ from sqlalchemy import (BigInteger, Boolean, Column, Date, DateTime, Float,
                         SmallInteger, String, Table, Text, Time, Unicode,
                         UnicodeText)
 from sqlalchemy.orm import relationship
+from sync_buddy.database.schema import Column as ColumnEnum
 from sync_buddy.logger import get_logger
 
-valid_types = dict(
-    BigInteger=BigInteger,
-    Boolean=Boolean,
-    Column=Column,
-    Date=Date,
-    DateTime=DateTime,
-    Float=Float,
-    ForeignKey=ForeignKey,
-    Integer=Integer,
-    Interval=Interval,
-    LargeBinary=LargeBinary,
-    Numeric=Numeric,
-    SmallInteger=SmallInteger,
-    String=String,
-    Table=Table,
-    Text=Text,
-    Time=Time,
-    Unicode=Unicode,
-    UnicodeText=UnicodeText
-)
+type_mapping = {
+    ColumnEnum.BigInteger.value: BigInteger,
+    ColumnEnum.Boolean.value: Boolean,
+    ColumnEnum.Column.value: Column,
+    ColumnEnum.Date.value: Date,
+    ColumnEnum.DateTime.value: DateTime,
+    ColumnEnum.Float.value: Float,
+    ColumnEnum.ForeignKey.value: ForeignKey,
+    ColumnEnum.Integer.value: Integer,
+    ColumnEnum.Interval.value: Interval,
+    ColumnEnum.LargeBinary.value: LargeBinary,
+    ColumnEnum.Numeric.value: Numeric,
+    ColumnEnum.SmallInteger.value: SmallInteger,
+    ColumnEnum.String.value: String,
+    ColumnEnum.Table.value: Table,
+    ColumnEnum.Text.value: Text,
+    ColumnEnum.Time.value: Time,
+    ColumnEnum.Unicode.value: Unicode,
+    ColumnEnum.UnicodeText.value: UnicodeText
+}
 
 
 class SqlTable:
@@ -47,7 +48,7 @@ def define_table(sql, name, key, column_definitions):
     for c_name, c_type in column_definitions.items():
         args = [
             c_name,
-            valid_types.get(c_type, None),
+            type_mapping.get(c_type, None),
         ]
         kwargs = dict(
             primary_key=c_name == key,
@@ -56,12 +57,12 @@ def define_table(sql, name, key, column_definitions):
         if c_type.endswith('?'):
             c_type = c_type[:-1]
             kwargs['nullable'] = True
-            args[1] = valid_types.get(c_type, None)
+            args[1] = type_mapping.get(c_type, None)
         if c_type.endswith(')') and '(' in c_type:
             size = int(c_type[c_type.rfind('(') + 1:-1])
             c_type = c_type[:c_type.rfind('(')]
-            args[1] = valid_types.get(c_type, None)(size)
-        assert c_type in valid_types, f'Invalid column type for "{c_name}"'
+            args[1] = type_mapping.get(c_type, None)(size)
+        assert c_type in type_mapping, f'Invalid column type for "{c_name}"'
         column_names.append(c_name)
         if c_name in sql_relationships['one_to_many']:
             args.append(ForeignKey(sql_relationships['one_to_many'][c_name].foreign))

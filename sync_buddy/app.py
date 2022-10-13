@@ -30,9 +30,10 @@ logger.debug(f'Args passed successfully')
 container = read_config(parsed_args.config_files)
 
 if not parsed_args.parse:
-    container.sql['default'].create_tables()
+    container.create_all_tables()
 
     for script in container.scripts:
         script.run()
 
 container.save_variables()
+logger.info('App shutdown')
