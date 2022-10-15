@@ -1,5 +1,4 @@
 import json
-from dataclasses import dataclass
 
 import requests
 from sync_buddy.scripts.variables import initialize_variable
@@ -7,7 +6,6 @@ from sync_buddy.utilities.key_value_pairs import KVP
 from sync_buddy.web.schema import Method
 
 
-@dataclass
 class Endpoint:
 
     name: str

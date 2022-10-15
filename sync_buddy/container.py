@@ -36,8 +36,14 @@ class Container:
     run: dict()
     paginations: dict()
 
-    def __init__(self, apis, paginations, variables, scripts, sqls):
+    def __init__(self, apis=None, paginations=None, variables=None, scripts=None, sqls=None):
         logger = get_logger('app')
+
+        apis = apis or dict()
+        paginations = paginations or dict()
+        variables = variables or dict()
+        scripts = scripts or dict()
+        sqls = sqls or dict()
 
         self.variables = Variables()
         self.endpoints = dict()
@@ -82,7 +88,7 @@ class Container:
         self.scripts = [CustomScript(self, filepath) for filepath in scripts]
         logger.debug(f'Loaded {len(self.scripts)} total scripts')
 
-        # Load vriables
+        # Load variables
         self.variables.load_variables(**variables)
         self.load_variables()
         logger.debug(f'Config variables updated')

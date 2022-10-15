@@ -23,8 +23,6 @@ class MaxCountPagination(Pagination):
         elif 'total_header' in kwargs:
             self._total_type = 'header'
             self._header_total = kwargs['total_header']
-        else:
-            raise ValidationErr()
 
         if 'count_json_path' in kwargs:
             self._count_type = 'json'

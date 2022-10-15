@@ -4,7 +4,7 @@ from typing import List
 import hiyapyco
 from dotenv import dotenv_values
 
-from container import Container
+from sync_buddy.container import Container
 from sync_buddy.database.schema import validate_sqls
 from sync_buddy.logger import get_logger
 from sync_buddy.scripts.scheme import validate_scripts, validate_variables
