@@ -1,0 +1,2 @@
+scripts:
+  - tests/data/test_configs/scripts.yaml

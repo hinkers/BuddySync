@@ -11,12 +11,12 @@ from sync_buddy.scripts.scheme import validate_scripts, validate_variables
 from sync_buddy.web.schema import validate_apis, validate_paginations
 
 
-def read_config(filenames: List[str]) -> Container:
+def read_config(env_file: str, filenames: List[str]) -> Container:
     # Get logger
     logger = get_logger('app')
 
     # Get environment variables
-    env = dotenv_values(".env")
+    env = dotenv_values(env_file)
     logger.debug(f'Read {len(env.keys())} values from .env file')
 
     # Read all config files and merge the results

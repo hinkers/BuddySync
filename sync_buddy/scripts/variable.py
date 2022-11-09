@@ -1,3 +1,6 @@
+from string import Template
+
+
 class Variable:
 
     replace_string: str
@@ -8,7 +11,10 @@ class Variable:
         self.variables = variables
 
     def __repr__(self):
-        return self.variables.format_string(self.replace_string)
+        return self.format_string()
 
     def __str__(self):
         return str(self.__repr__())
+
+    def format_string(self):
+        return Template(self.replace_string).safe_substitute(self.variables.as_dict())

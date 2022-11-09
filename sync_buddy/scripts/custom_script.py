@@ -18,17 +18,19 @@ class CustomScript:
             endpoints=self.container.endpoints_as_object(),
             pagination=self.container.pagination_as_object(),
             formatters=Formatters,
-            Session=self.container.sqls['default'].session(),
+            Session=None,
             variables=self.container.variables.as_dict(),
             utilities=self.container.utilities,
             **self.container.loc_tables(),
             **locals_
         )
+        if len(self.container.sqls) > 0:
+            loc['Session'] = self.container.sqls['default'].session()
         with open(self.filename, 'r') as script:
             try:
                 exec(compile(script.read(), self.filename, 'exec'), dict(), loc)
             except Exception as e:
                 if throw:
                     raise e
-                loc['Error'] = str(e)
+                loc['error'] = str(e)
         return loc

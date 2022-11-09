@@ -14,7 +14,7 @@ class Variables:
 
     def load_variables(self, **kwargs):
         for key, value in kwargs.items():
-            if key in ['__variable_names', '__variable_dict', 'as_dict', 'keys', 'format_string']:
+            if key in ['__variable_names', '__variable_dict', 'as_dict', 'keys']:
                 raise KeyError(f'Cannot name variable "{key}" as it is a reserved keyword.')
             self.__variable_dict[key] = value
             if (s_key := '{' + key + '}') not in self.__variable_names:
@@ -30,9 +30,6 @@ class Variables:
 
 def contains_variable(variables, input_string):
     return any(var_name in input_string for var_name in variables.keys())
-
-def format_string(variables, replace_string):
-    return replace_string.format(**variables.as_dict())
 
 def initialize_variable(variables, var):
     if isinstance(var, str):

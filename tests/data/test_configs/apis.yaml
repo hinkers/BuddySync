@@ -1,0 +1,18 @@
+apis:
+  - auth_type: apikey
+    api_key: ${API_KEY}
+    apikey_name: token
+    apikey_location: param
+    base_url: https://gnews.io/api/v4
+    endpoints:
+      - name: top_headlines
+        endpoint: /top-headlines
+        method: GET
+      - name: search
+        endpoint: /search
+        method: GET
+        params:
+          - name: q
+            value: example
+          - name: max
+            value: 5

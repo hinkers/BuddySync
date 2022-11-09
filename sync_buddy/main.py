@@ -28,7 +28,7 @@ def main():
     parsed_args = parser.parse_args()
     logger.debug(f'Args passed successfully')
 
-    container = read_config(parsed_args.config_files)
+    container = read_config('.env', parsed_args.config_files)
 
     if not parsed_args.parse:
         container.create_all_tables()
