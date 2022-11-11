@@ -47,3 +47,4 @@ def test_custom_script_fail_raise(tmp_path):
     assert len(container.scripts) == 1
     with pytest.raises(Exception):
         container.scripts[0].run()
+
