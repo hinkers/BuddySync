@@ -31,24 +31,24 @@ class Container:
     variables: Variables
     auth: object()
     endpoints: dict()
-    sqls: object()
+    databases: object()
     scripts: dict()
     run: dict()
     paginations: dict()
 
-    def __init__(self, apis=None, paginations=None, variables=None, scripts=None, sqls=None):
+    def __init__(self, apis=None, paginations=None, variables=None, scripts=None, databases=None):
         logger = get_logger('app')
 
         apis = apis or dict()
         paginations = paginations or dict()
         variables = variables or dict()
         scripts = scripts or dict()
-        sqls = sqls or dict()
+        databases = databases or dict()
 
         self.variables = Variables()
         self.endpoints = dict()
         self.paginations = dict()
-        self.sqls = dict()
+        self.databases = dict()
         self.utilities = Utilities(self)
 
         # Load APIs and Endpoints
@@ -70,19 +70,19 @@ class Container:
         logger.debug(f'Loaded {len(self.paginations)} Pagination definitions')
 
         # Load SQL
-        for sql_definition in sqls:
-            sql = SQL(**sql_definition)
+        for database_definition in databases:
+            sql = SQL(**database_definition)
 
-            for table_definition in sql_definition['tables']:
+            for table_definition in database_definition['tables']:
                 sql.add_table(**table_definition)
             logger.debug(f'Loaded {len(sql.tables)} table definitions')
 
-            for type_, relations in sql_definition['relationships'].items():
+            for type_, relations in database_definition['relationships'].items():
                 sql.add_relationships(type_, relations)
             logger.debug(f'Loaded {len(sql.relationships)} relationships')  
           
-            self.sqls[name(sql_definition)] = sql
-        logger.debug(f'Loaded {len(self.sqls)} SQL definitions')
+            self.databases[name(database_definition)] = sql
+        logger.debug(f'Loaded {len(self.databases)} Database definitions')
         
         # Load Scripts
         self.scripts = [CustomScript(self, filepath) for filepath in scripts]
@@ -106,8 +106,8 @@ class Container:
         return GenericObject({n: p.pages for n, p in self.paginations.items()})
 
     def create_all_tables(self):
-        for sql in self.sqls.values():
+        for sql in self.databases.values():
             sql.create_tables()
 
     def loc_tables(self):
-        return {sql_name: GenericObject(sql.tables, False) for sql_name, sql in self.sqls.items()}
+        return {database_name: GenericObject(database.tables, False) for database_name, database in self.databases.items()}

@@ -9,8 +9,8 @@ class Api:
     auth_type: str
     base_url: str
     api_key = None
-    param_name = None
-    header_name = None
+    apikey_location = None
+    apikey_name = None
     oauth = None
     oauth_session = None
 
@@ -20,10 +20,8 @@ class Api:
 
         if auth_type == AuthType.APIKEY.value:
             self.api_key = kwargs.get('api_key')
-            if kwargs['apikey_location'] == Location.PARAM.value:
-                self.param_name = kwargs['apikey_name']
-            elif kwargs['apikey_location'] == Location.HEADER.value:
-                self.header_name = kwargs['apikey_name']
+            self.apikey_location = kwargs['apikey_location']
+            self.apikey_name = kwargs['apikey_name']
         elif auth_type in (AuthType.OAUTH1.value, AuthType.OAUTH2.value):
             self._register_oauth(auth_type, kwargs)
 
@@ -58,12 +56,12 @@ class Api:
         return f'{self.base_url}{endpoint}'
 
     def params(self, params):
-        if self.param_name is not None:
+        if self.apikey_location == 'param':
             return { self.param_name: self.api_key, **params }
         return params
 
     def headers(self, headers):
-        if self.header_name is not None:
+        if self.apikey_location == 'header':
             return { self.header_name: self.api_key, **headers }
         return headers
 

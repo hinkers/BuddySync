@@ -10,7 +10,7 @@ from sync_buddy.web.pagination.pagination import Pagination
 from .data.apis import (api1, endpoint_search1, endpoint_search2,
                         endpoint_top_headlines)
 from .data.paginations import pagination_max_count
-from .data.sqls import sql1
+from .data.databases import sql1
 
 
 class TestFunctions:
@@ -74,14 +74,14 @@ class TestContainer:
         assert len(container.paginations) == 1
         assert isinstance(container.paginations.get('max_count', None), Pagination)
 
-    def test_container_sqls(self):
-        container = Container(sqls=[sql1])
+    def test_container_databases(self):
+        container = Container(databases=[sql1])
         
-        assert len(container.sqls) == 1
-        assert isinstance(container.sqls.get('default', None), SQL)
-        assert len(container.sqls.get('default', None).tables) == 2
-        assert issubclass(container.sqls.get('default', None).tables['News'], SqlTable)
-        assert issubclass(container.sqls.get('default', None).tables['Source'], SqlTable)
+        assert len(container.databases) == 1
+        assert isinstance(container.databases.get('default', None), SQL)
+        assert len(container.databases.get('default', None).tables) == 2
+        assert issubclass(container.databases.get('default', None).tables['News'], SqlTable)
+        assert issubclass(container.databases.get('default', None).tables['Source'], SqlTable)
 
     def test_container_scripts(self):
         container = Container(scripts=['scripts/my_script.py', 'scripts/test_script.py'])

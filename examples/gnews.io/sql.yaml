@@ -1,4 +1,4 @@
-sqls:
+databases:
   - connection_string: sqlite:///gnews.sqlite
     create_tables: True
     relationships:

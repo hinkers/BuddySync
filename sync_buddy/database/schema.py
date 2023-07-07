@@ -25,7 +25,7 @@ class Column(Enum):
     UnicodeText = 'UnicodeText'
 
 
-def validate_sql(data):
+def validate_database(data):
     VALID_RELATIONSHIP = And(str, Use(str.strip), Regex('.*\..*\s*->\s*.*\..*', flags=re.IGNORECASE))
     VALID_COLUMN = Regex('|'.join([f'{e.value}(?:\(.*\))?' for e in Column]), flags=re.IGNORECASE)
 
@@ -47,5 +47,5 @@ def validate_sql(data):
     }).validate(data)
 
 
-def validate_sqls(data):
-    return Schema([Use(validate_sql)]).validate(data)
+def validate_databases(data):
+    return Schema([Use(validate_database)]).validate(data)

@@ -24,8 +24,8 @@ class CustomScript:
             **self.container.loc_tables(),
             **locals_
         )
-        if len(self.container.sqls) > 0:
-            loc['Session'] = self.container.sqls['default'].session()
+        if len(self.container.databases) > 0:
+            loc['Session'] = self.container.databases['default'].session()
         with open(self.filename, 'r') as script:
             try:
                 exec(compile(script.read(), self.filename, 'exec'), dict(), loc)

@@ -5,7 +5,7 @@ import hiyapyco
 from dotenv import dotenv_values
 
 from sync_buddy.container import Container
-from sync_buddy.database.schema import validate_sqls
+from sync_buddy.database.schema import validate_databases
 from sync_buddy.logger import get_logger
 from sync_buddy.scripts.scheme import validate_scripts, validate_variables
 from sync_buddy.web.schema import validate_apis, validate_paginations
@@ -39,11 +39,11 @@ def read_config(env_file: str, filenames: List[str]) -> Container:
     paginations = validate_paginations(config.get('paginations', []))
     variables = validate_variables(config.get('variables', {}))
     scripts = validate_scripts(config.get('scripts', []))
-    sqls = validate_sqls(config.get('sqls', []))
+    databases = validate_databases(config.get('databases', []))
     logger.info('All config is valid')
 
     # Create container
-    container = Container(apis, paginations, variables, scripts, sqls)
+    container = Container(apis, paginations, variables, scripts, databases)
     logger.debug('Container created')
 
     return container

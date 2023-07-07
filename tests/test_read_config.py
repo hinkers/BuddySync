@@ -2,7 +2,7 @@ from sync_buddy.container import Container
 from sync_buddy.read_config import read_config
 
 from .data.paginations import pagination_max_count
-from .data.sqls import sql1
+from .data.databases import sql1
 
 
 def test_container_apis():

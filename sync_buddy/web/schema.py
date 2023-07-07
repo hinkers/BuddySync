@@ -5,10 +5,11 @@ from schema import And, Optional, Or, Regex, Schema, Use
 
 
 class AuthType(Enum):
-    CUSTOM = 'custom'
+    NONE = 'none'
     APIKEY = 'apikey'
     OAUTH1 = 'oauth1'
     OAUTH2 = 'oauth2'
+    CUSTOM = 'custom'
 
 
 class Method(Enum):

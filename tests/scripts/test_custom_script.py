@@ -2,7 +2,7 @@ import pytest
 
 from sync_buddy.container import Container
 
-from ..data.sqls import sql1
+from ..data.databases import sql1
 
 
 def test_custom_script_success(capsys, tmp_path):
@@ -20,7 +20,7 @@ def test_custom_script_session(capsys, tmp_path):
     f = tmp_path / "test_script.py"
     f.write_text('print(Session is not None)')
 
-    container = Container(scripts=[f], sqls=[sql1])
+    container = Container(scripts=[f], databases=[sql1])
     
     assert len(container.scripts) == 1
     container.scripts[0].run()
