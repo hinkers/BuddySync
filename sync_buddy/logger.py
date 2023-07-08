@@ -4,7 +4,7 @@ from datetime import datetime
 def get_logger(name):
     logger = logging.getLogger(name)
 
-    if not logger.hasHandlers():    
+    if len(logger.handlers) == 0:    
         logger.setLevel(logging.DEBUG)
 
         formatter = logging.Formatter("%(asctime)s %(name)-9s %(levelname)s %(message)s")

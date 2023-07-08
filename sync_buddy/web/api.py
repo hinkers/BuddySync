@@ -57,12 +57,12 @@ class Api:
 
     def params(self, params):
         if self.apikey_location == 'param':
-            return { self.param_name: self.api_key, **params }
+            return { self.apikey_name: self.api_key, **params }
         return params
 
     def headers(self, headers):
         if self.apikey_location == 'header':
-            return { self.header_name: self.api_key, **headers }
+            return { self.apikey_name: self.api_key, **headers }
         return headers
 
     def handle_http(self, endpoint: Endpoint, response: requests.Response):

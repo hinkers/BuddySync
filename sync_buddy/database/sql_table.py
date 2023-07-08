@@ -3,6 +3,7 @@ from sqlalchemy import (BigInteger, Boolean, Column, Date, DateTime, Float,
                         SmallInteger, String, Table, Text, Time, Unicode,
                         UnicodeText)
 from sqlalchemy.orm import relationship
+
 from sync_buddy.database.schema import Column as ColumnEnum
 from sync_buddy.logger import get_logger
 
@@ -43,7 +44,6 @@ def define_table(sql, name, key, column_definitions):
     column_names = []
     properties = dict()
     relationships = dict()
-    sql_relationships = sql.get_relationships(name)
 
     for c_name, c_type in column_definitions.items():
         args = [
@@ -64,10 +64,14 @@ def define_table(sql, name, key, column_definitions):
             args[1] = type_mapping.get(c_type, None)(size)
         assert c_type in type_mapping, f'Invalid column type for "{c_name}"'
         column_names.append(c_name)
-        if c_name in sql_relationships['one_to_many']:
-            args.append(ForeignKey(sql_relationships['one_to_many'][c_name].foreign))
-        elif c_name in sql_relationships['one_to_one']:
-            args.append(ForeignKey(sql_relationships['one_to_one'][c_name].foreign))
+        
+        one_to_many = sql.get_relationship('one_to_many', name, c_name)
+        one_to_one = sql.get_relationship('one_to_one', name, c_name)
+        if one_to_many is not None:
+            args.append(ForeignKey(one_to_many.foreign))
+        elif one_to_one is not None:
+            args.append(ForeignKey(one_to_one.foreign))
+        
         columns.append(Column(*args, **kwargs))
 
     for relation in sql.relationships['one_to_many']:

@@ -1,7 +1,7 @@
-from enum import Enum
 import re
+from enum import Enum
 
-from schema import And, Optional, Or, Regex, Schema, Use
+from schema import And, Optional, Regex, Schema, Use
 
 
 class Column(Enum):    

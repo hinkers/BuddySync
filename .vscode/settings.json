@@ -1,15 +1,9 @@
 {
     "python.testing.pytestArgs": [
         "--cov-report",
-        "xml:coverage/cov.xml",
+        "lcov:coverage/lcov.info",
         "--cov=sync_buddy"
     ],
     "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true,
-    "koverage.coverageFilePaths": [
-        "coverage"
-    ],
-    "koverage.coverageFileNames": [
-        "cov.xml"
-    ]
+    "python.testing.pytestEnabled": true
 }

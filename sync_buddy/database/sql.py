@@ -39,6 +39,7 @@ class SQL:
         if self._engine is None:
             self._engine = create_engine(self.connection_string, echo=self.echo)
             self._session = sessionmaker(bind=self.engine())
+        print(self._engine.url)
         return self._engine
 
     def session(self):
@@ -62,11 +63,11 @@ class SQL:
                 foreign_key=foreign_key.strip()
             ))
 
-    def get_relationships(self, name):
-        return dict(
-            one_to_many={ r.key: r for r in self.relationships['one_to_many'] if r.name.lower() == name.lower() },
-            one_to_one={ r.key: r for r in self.relationships['one_to_one'] if r.name.lower() == name.lower() },
-        )
+    def get_relationship(self, type_, table_name, column_name):
+        for relationship in self.relationships[type_]:
+            if relationship.name.lower() == table_name.lower() and relationship.key == column_name:
+                return relationship
+        return None
 
     def create_tables(self):
         if self._create_tables:
