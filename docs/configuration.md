@@ -151,6 +151,12 @@ relationships:
 ```
 
 ### **One to Many**
+```yaml
+relationships:
+      one_to_many:
+        - ChildTable.foriegn_key -> ParentTable.primary_key
+        - Article.author_id -> Author.id
+```
 
 <!-- tabs:end -->
 
